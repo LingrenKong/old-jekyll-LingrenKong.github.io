@@ -211,9 +211,9 @@ exclude:
 defaults:
   - scope:
       path: ""
-      type: posts
+      type: posts #对所有posts（_posts文件夹）设置这个默认
     values:
-      layout: article
+      layout: article 
       sharing: true
       license: true
       aside:
