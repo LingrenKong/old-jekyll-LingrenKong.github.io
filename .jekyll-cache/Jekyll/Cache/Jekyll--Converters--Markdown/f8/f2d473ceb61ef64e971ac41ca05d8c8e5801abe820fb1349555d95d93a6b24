@@ -1,0 +1,35 @@
+I"�<p>摘要</p>
+
+<!--more-->
+
+<p>很多人都说网页制作比其他程序容易，然而网页制作一样有很多大坑。以下是我和我认识的人遇到过的奇怪坑。</p>
+
+<h1 id="html">HTML</h1>
+
+<h2 id="错拼标签">错拼标签</h2>
+
+<h3 id="href">href</h3>
+
+<p>都说写HTML和写文字差不多，然而乱七八糟标签总会让人在一开始迷了眼。</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"https:\\www.baidu.com"</span><span class="nt">&gt;</span>链接到百度<span class="nt">&lt;/a&gt;</span> <span class="c">&lt;!--这个是有效的--&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"www.baidu.com"</span><span class="nt">&gt;</span>链接到百度<span class="nt">&lt;/a&gt;</span> <span class="c">&lt;!--是个链接，但是进入的是当前页面下的目录--&gt;</span>
+<span class="nt">&lt;a</span> <span class="na">herf=</span><span class="s">"https:\\www.baidu.com"</span><span class="nt">&gt;</span>链接到百度<span class="nt">&lt;/a&gt;</span> <span class="c">&lt;!--看起来非常正常，但是点不开，拼写错了href--&gt;</span>
+</code></pre></div></div>
+
+<p><a href="https://www.baidu.com/">链接到百度</a>
+<a href="https://lingrenkong.github.io/2019/10/22/common-mistakes-for-web/www.baidu.com">链接到百度</a>
+链接到百度</p>
+
+<p><code class="language-plaintext info highlighter-rouge">by森鸾</code></p>
+
+<h3 id="method-no-r">method-no-r</h3>
+
+<p>类似的还有似懂非懂的英文理解，比如说<code class="language-plaintext highlighter-rouge">&lt;button method="post"&gt;按钮&lt;/button&gt;</code>按钮，如果拼写成<code class="language-plaintext highlighter-rouge">methord</code>就尴尬了。</p>
+
+<p><code class="language-plaintext info highlighter-rouge">by我</code></p>
+
+<h1 id="感谢列表">感谢列表</h1>
+
+<p>森鸾</p>
+:ET

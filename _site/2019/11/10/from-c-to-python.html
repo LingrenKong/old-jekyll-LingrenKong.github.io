@@ -1,0 +1,1394 @@
+<!DOCTYPE html><html lang="zh-CN">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>在有C语言基础的情况下理解Python - 孔令仁的博客</title>
+
+<meta name="description" content="如何在有C语言基础的情况下理解Python假设C语言基础是采用《C程序设计（第四版）》 谭浩强">
+<link rel="canonical" href="http://localhost:4000/2019/11/10/from-c-to-python.html"><link rel="alternate" type="application/rss+xml" title="孔令仁的博客" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="孔令仁的个人博客页面~ 等我找个更好的说明词……目前文艺细胞匮乏中
+" href="/">孔令仁的博客</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li class="navigation__item"><a href="/notes.html">笔记</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>在有C语言基础的情况下理解Python</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/LingrenKong/LingrenKong.github.io/tree/master/_posts/2019-11-10-from-c-to-python.md">
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="在有C语言基础的情况下理解Python"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=Python">Python</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%AD%A6%E4%B9%A0">学习</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2019年 11月10日</span>
+            </li></ul></div><meta itemprop="author" content="孔令仁"/><meta itemprop="datePublished" content="2019-11-10T00:00:00+00:00">
+    <meta itemprop="keywords" content="Python,学习"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p>如何在有C语言基础的情况下理解Python</p>
+
+<p>假设C语言基础是采用《C程序设计（第四版）》 谭浩强</p>
+
+<!--more-->
+
+<h1 id="概念比较">概念比较</h1>
+
+<p>学完C一年之后再去翻C语言的基础书，才发现似乎书上真的没有讲什么……</p>
+
+<p>目录：</p>
+
+<ul>
+  <li>程序设计和C语言</li>
+  <li>算法——程序的灵魂</li>
+  <li>简单的C程序设计——顺序程序设计</li>
+  <li>选择结构程序设计</li>
+  <li>循环结构程序设计</li>
+  <li>利用数组处理批量数据</li>
+  <li>用函数实现模块化程序设计</li>
+  <li>善于利用指针</li>
+  <li>用户自己建立数据类型</li>
+  <li>对文件的输入输出</li>
+</ul>
+
+<p>对应的内容：</p>
+
+<ul>
+  <li><a href="https://lingrenkong.github.io/2019/11/10/from-c-to-python/#语言特性">脚本语言、面向对象</a></li>
+  <li><a href="https://lingrenkong.github.io/2019/11/10/from-c-to-python/#算法">算法</a></li>
+  <li><a href="https://lingrenkong.github.io/2019/11/10/from-c-to-python/#选择与循环">Python的选择与循环</a></li>
+  <li>Python的内置数据类型【可以看菜鸟教程或者官方文档等】</li>
+  <li>Python函数【可以看菜鸟教程或者官方文档等】</li>
+  <li><a href="https://lingrenkong.github.io/2019/11/10/from-c-to-python/#C的指针与Python变量">没有指针，但是有类似的逻辑</a></li>
+  <li>Python的类【可以看菜鸟教程或者官方文档等】</li>
+  <li><a href="https://lingrenkong.github.io/2019/11/10/from-c-to-python/#文件、输入输出、路径">文件、输入输出、路径</a></li>
+</ul>
+
+<h2 id="语言特性">语言特性</h2>
+
+<p>对于Python最深刻的理解莫过于这个了：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">this</span>
+<span class="s">"""
+The Zen of Python, by Tim Peters
+
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.可读性很重要！
+Special cases aren't special enough to break the rules.
+Although practicality beats purity.
+Errors should never pass silently.
+Unless explicitly silenced.
+In the face of ambiguity, refuse the temptation to guess.
+There should be one-- and preferably only one --obvious way to do it.
+Although that way may not be obvious at first unless you're Dutch.
+Now is better than never.
+Although never is often better than *right* now.
+If the implementation is hard to explain, it's a bad idea.
+If the implementation is easy to explain, it may be a good idea.
+Namespaces are one honking great idea -- let's do more of those!
+"""</span>
+</code></pre></div></div>
+
+<p>Python的语言特性很多，如果说和C对比的话，最大的区别是三点：</p>
+
+<ul>
+  <li>脚本语言</li>
+  <li>动态类型</li>
+  <li>面向对象</li>
+</ul>
+
+<h3 id="脚本语言">脚本语言</h3>
+
+<p>脚本语言不需要编译，可以直接用，由解释器来负责解释</p>
+
+<p>所以说相比于C，你不需要进行编译，也不因为编译失败而心态爆炸</p>
+
+<p>使用解释器，意味着你可以运行你代码的部分，即使后面还没有写完（但是这不代表你可以跳过使用某个变量的语句直接运行后面的语句）</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">var</span> <span class="o">=</span> <span class="s">"变量赋值"</span>
+<span class="n">var</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">print</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>如果你上来就<code class="language-plaintext highlighter-rouge">run cell(Spyder的一个按钮，可以运行选定部分)</code>，那就会<code class="language-plaintext highlighter-rouge">NameError: name 'var' is not defined</code>，提示你没有定义变量<code class="language-plaintext highlighter-rouge">var</code>。</p>
+
+<p>如果你运行整个程序，那么就会输出1（动态类型后面再说）</p>
+
+<p>如果你先运行第一句，然后跳过第二个，单独运行第三句，那么就会输出<code class="language-plaintext highlighter-rouge">变量赋值</code></p>
+
+<p>脚本语言使得写代码时，能够人机即时交互，但是代价是解释器会存下太多东西，速度和内存管理不太行（但是我们暂时不必在意这点）</p>
+
+<h3 id="动态变量">动态变量</h3>
+
+<p>相比于C，动态变量这件事可以说是喜忧参半。</p>
+
+<ul>
+  <li>忧在没有人管你的变量操作了，没有严格定义的变量有时候会出问题</li>
+  <li>喜在你不需要具体的一个个定义变量，只需要写出变量名赋值即可</li>
+</ul>
+
+<p>严格来讲，动态变量类型不代表你就可以随便更改变量的类型。因为变量的数据类型不定，所以你可能会搞出一些迷惑操作，尤其Python特别擅长重载各种操作，所以你并不会因为错误的数据类型而得到Error：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">"请输入一个数字a:"</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">"请输入一个数字b:"</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'a+b的结果是：'</span><span class="p">,</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">)</span>
+
+<span class="c1">#请输入一个数字a:1
+#请输入一个数字b:2
+#a+b的结果是： 12
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">a+b</code>看起来很正常，然而input输进去的是字符串，所以<code class="language-plaintext highlighter-rouge">+</code>是字符串的连接方法，你得到的是两个字符直接相连，而不是数字加法。</p>
+
+<p>因此最好不要用<code class="language-plaintext highlighter-rouge">i</code>这种看起来就像循环变量的东西来存字符串，会让其他人懵的</p>
+
+<h3 id="面向对象">面向对象</h3>
+
+<p>【致某些同学（包含我自己）：面向对象编程不要求你先找个对象】</p>
+
+<p>面向对象是相对于面向过程来讲的，面向对象方法，把相关的数据和方法组织为一个整体来看待，从更高的层次来进行系统建模，更贴近事物的自然运行模式。</p>
+
+<p>简而言之：之前写个<code class="language-plaintext highlighter-rouge">main()</code>函数，现在要写<code class="language-plaintext highlighter-rouge">class xxx</code>，函数还是要写，但是一般组织在一个类里面</p>
+
+<p>如果你对面向对象暂时不太了解，也可以继续使用C的面向过程编程，继续写函数。</p>
+
+<p>下面是个简单的例子，看不懂也不要太担心（因为<code class="language-plaintext highlighter-rouge">self</code>这种东西就是个符号而已）</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">function</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">People</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">def</span> <span class="nf">function1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">function2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">n</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+	<span class="n">function</span><span class="p">(</span><span class="s">"学Python"</span><span class="p">)</span>
+	<span class="n">klr</span> <span class="o">=</span> <span class="n">People</span><span class="p">(</span><span class="s">"klr"</span><span class="p">)</span>
+	<span class="n">klr</span><span class="p">.</span><span class="n">function2</span><span class="p">()</span>
+	<span class="n">klr</span><span class="p">.</span><span class="n">function1</span><span class="p">(</span><span class="s">"好好学习"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="算法">算法</h2>
+
+<p>算法在每种语言都是相同的，但是在Python做程序练习的时候，你可以总找到捷径</p>
+
+<p>比如说处理重复数据的时候，可以用<code class="language-plaintext highlighter-rouge">set</code>直接搞定：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">listRaw</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">listRaw</span><span class="p">)))</span>
+<span class="c1"># [1, 2, 3, 5]
+</span></code></pre></div></div>
+
+<p>【这就是为啥Python相关广告都有“X行代码搞定”的标题】</p>
+
+<h2 id="选择与循环">选择与循环</h2>
+
+<p>参考<a href="https://www.runoob.com/python3/python3-conditional-statements.html">菜鸟教程</a>可以了解基本的Python分支和循环语句</p>
+
+<p>相比于C语言，可能更需要注意的是，Python对于循环的彻底认知是比较有难度的（这要感谢Python基本数据的特性）</p>
+
+<p>最明显的一点是，当我们使用<code class="language-plaintext highlighter-rouge">for</code>循环，会发现这个句子并不是简单的<code class="language-plaintext highlighter-rouge">i++</code>逻辑（当然你可以用while来做，那么就是<code class="language-plaintext highlighter-rouge">i++</code>的方式了）</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+	<span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>我们发现Python的for语句和C最根本的不同在于，C语言的while和for本质上差不多，可以互相改写，但是Python的for使用了<code class="language-plaintext highlighter-rouge">in</code>这个符号。</p>
+
+<p>深入讲解这个问题需要涉及到迭代器、生成器，我们暂时不讲那么深，只是提出来：</p>
+
+<ul>
+  <li>range可以当做C语言循环的模式来理解，但是实质不同</li>
+  <li>in还可以用在其他东西上，逐个遍历，比如字符串、列表、元组（他们统称可迭代对象）</li>
+</ul>
+
+<h2 id="c的指针与python变量">C的指针与Python变量</h2>
+
+<p>相信大家在学习C的时候老师都会强调C的重要性，其中比较常被强调的一点就是指针可以锻炼思维和节省空间。</p>
+
+<p>相信大家都知道Python是没有指针的，有的同学也为此松了一口气，但是……不幸的是，如果你在学C的时候没学明白指针，那么接下来的部分还是会让你感到迷惑。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span><span class="c1">#列表生成式可以先不必理解
+</span><span class="n">b</span> <span class="o">=</span> <span class="n">a</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s">"为什么会这样"</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="c1"># a: [1, 4, 7, 10, 13] b: [1, 4, 7, 10, 13]
+# a: [1, 4, '为什么会这样', 10, 13] b: [1, 4, '为什么会这样', 10, 13]
+</span></code></pre></div></div>
+
+<p>对比一下C语言什么时候会发生类似情况：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="nb">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="nb">int</span> <span class="o">*</span><span class="n">a</span><span class="o">=</span><span class="n">NULL</span><span class="p">,</span><span class="o">*</span><span class="n">b</span><span class="o">=</span><span class="n">NULL</span><span class="p">;</span>
+	<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">sizeof</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">);</span><span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
+	<span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">"a:%d,%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+	<span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">"a:%d,%d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">//</span><span class="n">输出</span><span class="err">：</span>
+<span class="o">//</span><span class="n">a</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span>
+<span class="o">//</span><span class="n">a</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span>
+</code></pre></div></div>
+
+<p>也就是说，如果你的变量是数、元组这种不可以更改的对象，那么万事大吉，可以直接用赋值。但是如果使用的是可变对象，比如列表，那么其实当你把一个变量赋值给另一个变量的时候，你其实是在类似于复制一个指针，并没有复制数据。</p>
+
+<p>如果从一个比较Python的方式来理解，一般是说，变量名是“一个贴纸”，而数据是格子，格子可以任意贴贴纸。仅仅是为了方便你理解和称呼某个数据，而解释器会根据你的变量对应的位置去找数据，这个过程任何语言都一样。</p>
+
+<p>因此Python的变量可以贴来贴去，也可以一堆标签贴在同一个格子（赋值时候发生的事情就是这个）。</p>
+
+<p>那么怎么处理这个问题呢？我们就需要引入两个函数<code class="language-plaintext highlighter-rouge">copy()和deepcopy()</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">copy()</code>是内置功能（其实是类的方法<code class="language-plaintext highlighter-rouge">__copy__(self)</code>），不需要调用包</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span><span class="c1">#这是一个基本的内置方法，不需要调包
+</span><span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s">"为什么会这样"</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="c1">#a: [1, 4, 7, 10, 13] b: [1, 4, 7, 10, 13]
+#a: [1, 4, '为什么会这样', 10, 13] b: [1, 4, 7, 10, 13]
+</span></code></pre></div></div>
+
+<p>但是有时候仅仅是copy还不够用：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">a</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">"啊！"</span><span class="c1">#在列表里面的列表被复制的时候简单的把列表的位置复制了，所以a和b虽然不同，但是他们含有同一个列表
+</span><span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">"为什么会这样"</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="c1">#a: [1, 2, ['啊！']] b: [1, 2, ['啊！']]
+#a: [1, '为什么会这样', ['啊！']] b: [1, 2, ['啊！']]
+</span>
+<span class="c1">#处理方式：
+</span><span class="kn">import</span> <span class="nn">copy</span>
+<span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">copy</span><span class="p">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s">"啊！"</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s">"为什么会这样"</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"a:"</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="s">"b:"</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+<span class="c1">#a: [1, 2, ['啊！']] b: [1, 2, [1]]
+#a: [1, '为什么会这样', ['啊！']] b: [1, 2, [1]]
+</span></code></pre></div></div>
+
+<h2 id="文件输入输出路径">文件、输入输出、路径</h2>
+
+<p>参考：</p>
+
+<ul>
+  <li>
+    <p><a href="https://www.runoob.com/python3/python3-inputoutput.html">菜鸟教程</a></p>
+  </li>
+  <li>
+    <p>官方文档（建议英语水平要够）</p>
+
+    <ul>
+      <li>仅仅使用open函数：https://docs.python.org/3/library/functions.html#open</li>
+      <li>路径操作：https://docs.python.org/3/library/os.path.html#module-os.path</li>
+    </ul>
+  </li>
+  <li>
+    <p>pathlib：</p>
+
+    <p>https://docs.python.org/3/library/pathlib.html</p>
+
+    <ul>
+      <li><a href="https://www.python.org/dev/peps/pep-0428/#abstract">PEP428</a>提出了建议，将pathlib这个对象式的第三方库加入到标准库之中</li>
+      <li>从Python 3.6开始，pathlib模块在整个标准库中得到支持</li>
+    </ul>
+  </li>
+  <li>
+    <p>pickle模块</p>
+  </li>
+</ul>
+
+<h3 id="input函数">input函数：</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">randint</span>
+
+<span class="k">def</span> <span class="nf">guess</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">randint</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">)</span>
+    <span class="n">guess</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">iterCount</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">iterCount</span><span class="o">&lt;</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">guess</span> <span class="o">!=</span> <span class="n">a</span><span class="p">:</span>
+        <span class="n">guess</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">input</span><span class="p">(</span><span class="s">"猜数游戏，这个数字a可以取从{0}到{1}:"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="n">end</span><span class="p">)))</span>
+        <span class="n">iterCount</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'恭喜猜对啦！'</span><span class="p">)</span>
+    
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">guess</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="字符串格式化输出">字符串格式化输出：</h3>
+
+<p>Python尽管有着十分友好的输出语法<code class="language-plaintext highlighter-rouge">print</code>，但是有些时候还是需要格式化输出字符串的功能。</p>
+
+<p>在Python中主要有四种格式化字符串的方法：</p>
+
+<p>第一种是类似于C的方法，在旧Python2中常用</p>
+
+<p>注意和C的区别在于<code class="language-plaintext highlighter-rouge">%</code>后面只接受单一参数，多个输入要用元组打包。如果担心参数太多容易乱，可以使用关键字和字典</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">name</span> <span class="o">=</span> <span class="s">'李狗蛋'</span>
+<span class="n">age</span> <span class="o">=</span> <span class="mi">18</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"我的名字是%s"</span><span class="o">%</span><span class="n">name</span><span class="p">)</span><span class="c1">#在字符后面接上%，这个整体是一个格式化字符串，不一定要print出来
+</span><span class="n">t</span> <span class="o">=</span> <span class="s">"我的名字是%s"</span><span class="o">%</span><span class="n">name</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'格式化作用于字符串而不是print:'</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"我的名字是%s，我的年龄是%d"</span><span class="o">%</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">age</span><span class="p">))</span><span class="c1">#元组打包格式化
+</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"我的名字是%(na)s，我的年龄是%(ag)d"</span><span class="o">%</span><span class="p">{</span><span class="s">'ag'</span><span class="p">:</span><span class="n">age</span><span class="p">,</span><span class="s">'na'</span><span class="p">:</span><span class="n">name</span><span class="p">})</span><span class="c1">#注意前面是（）括号，后面字典才是{}
+</span></code></pre></div></div>
+
+<p>第二种是Python3字符串方法</p>
+
+<p>这是通过为字符串对象内置<code class="language-plaintext highlighter-rouge">.format</code>方法实现的</p>
+
+<p>可以用<code class="language-plaintext highlighter-rouge">help(" ".format)/help(str.format)</code>直接看函数简介</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">str</code>整体的文档在https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str</li>
+  <li>格式化字符串的网址在https://docs.python.org/3/library/string.html#formatstrings</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"count {0} {1} {2}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># format()内的东西采用逗号分隔，相当于作为一个元组输入，而前面{}里面的序号对应元组的位序
+</span><span class="k">print</span><span class="p">(</span><span class="s">"count {} {} {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span><span class="c1"># 不写就按默认顺序
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{0[1]} {1.__doc__}"</span><span class="p">.</span><span class="nb">format</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span><span class="s">"lower"</span><span class="p">))</span><span class="c1">#输入数据对象可以再进行.(调用属性)或者[]操作
+</span>
+<span class="c1"># *对可迭代对象的解包 https://www.python.org/dev/peps/pep-3132/
+</span>
+<span class="s">"""
+python的len函数是一个很有用的函数，对字符也有多个功能
+"""</span>
+<span class="n">string</span> <span class="o">=</span> <span class="s">"中文字符串的len😀"</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">),</span><span class="s">'中文英文都是按一个字计算的'</span><span class="p">)</span> <span class="c1">#10
+</span><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">.</span><span class="n">encode</span><span class="p">(</span><span class="s">'utf-8'</span><span class="p">)),</span><span class="s">'中文6*3+英文3*1+1*4=25（英文不会被转换为utf8代码）'</span><span class="p">)</span>
+
+<span class="s">"""
+字符串对象有几个比较重要的内置方法
+"""</span>
+<span class="n">s</span> <span class="o">=</span> <span class="s">"I love programming"</span>
+<span class="n">s</span><span class="p">.</span><span class="n">title</span><span class="p">()</span><span class="c1"># 'I Love Programming'
+</span><span class="n">s</span><span class="p">.</span><span class="n">lower</span><span class="p">()</span><span class="c1"># 'i love programming'
+</span><span class="n">s</span><span class="p">.</span><span class="n">upper</span><span class="p">()</span><span class="c1"># 'I LOVE PROGRAMMING'
+</span></code></pre></div></div>
+
+<p>第三种方式：<code class="language-plaintext highlighter-rouge">f-string</code></p>
+
+<p>f字符串这个思路比较清奇，因为他不需要你去安排数据是啥这个问题（前面两种都需要把数据写在某些位置），你只要写变量名就可以自动让Python帮你找需要替换什么。</p>
+
+<p>P.S.这个思路有点像Django框架对于变量的替换</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="s">'找'</span>
+<span class="n">a</span> <span class="o">=</span> <span class="s">'我'</span>
+<span class="nb">str</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"你猜接下来输出是？</span><span class="si">{</span><span class="n">a</span><span class="si">}</span><span class="s">"</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="c1">#你猜接下来输出是？我
+</span></code></pre></div></div>
+
+<p>第四个方式<code class="language-plaintext highlighter-rouge">string.Template.substitute</code></p>
+
+<p>使用有点复杂，但是好处是可以封装特点的替换方式</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">Template</span>
+
+<span class="k">def</span> <span class="nf">demoTemplate</span><span class="p">():</span>
+  <span class="c1">#创建一个实例tmp
+</span>  <span class="n">myTemplate</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="s">"斐波那契数列第${a}项：${b}"</span><span class="p">)</span>
+  <span class="n">feb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">21</span><span class="p">]</span>
+  <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">feb</span><span class="p">:</span>
+    <span class="n">result</span><span class="o">=</span> <span class="n">myTemplate</span><span class="p">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">i</span><span class="p">,</span><span class="n">b</span><span class="o">=</span><span class="n">val</span><span class="p">)</span><span class="c1">#给相应的key（键）赋值，返回格式化的字符串
+</span>    <span class="k">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">demoTemplate</span><span class="p">()</span><span class="c1">#运行
+</span></code></pre></div></div>
+
+<h2 id="如何写注释">如何写注释</h2>
+
+<p>一个比较好的代码是需要有注释的，而且Python有个很强大的功能是可以自动为你生成用户文档，只需要用<code class="language-plaintext highlighter-rouge">help</code>函数即可</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Demo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">"""
+    展现如何给自己的代码留下可以方便重用的注释
+    """</span>
+    <span class="k">def</span> <span class="nf">demoPrint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">inputVal</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s">'默认打印这个'</span><span class="p">)</span><span class="o">-&gt;</span><span class="bp">None</span><span class="p">:</span>
+        <span class="s">"""
+        一个展示打印用的函数
+        按照定义要求inputVal输入的是str，并且返回None
+        """</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'&gt;'</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">inputVal</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">howToWriteNote</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">help</span><span class="p">(</span><span class="n">howToWriteNote</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="n">demo</span> <span class="o">=</span> <span class="n">Demo</span><span class="p">()</span>
+    <span class="n">demo</span><span class="p">.</span><span class="n">demoPrint</span><span class="p">()</span>
+    <span class="n">demo</span><span class="p">.</span><span class="n">demoPrint</span><span class="p">(</span><span class="s">'输出指定内容'</span><span class="p">)</span>
+    <span class="n">demo</span><span class="p">.</span><span class="n">demoPrint</span><span class="p">((</span><span class="s">'注意到输入并不符合定义式也可以运行'</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+</code></pre></div></div>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-11-10T00:00:00+00:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2019/11/09/blog-set-up-old-2.html">博客搭建(2)</a></div><div class="next"><span>下篇</span><a href="/2019/11/23/little-prince.html">聊聊《小王子》中的国王</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="孔令仁"><meta itemprop="url" content="/"><meta itemprop="description" content="统计学子，大四在读"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:2018201661@ruc.edu.cn" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/https://github.com/LingrenKong" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© 孔令仁的博客 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

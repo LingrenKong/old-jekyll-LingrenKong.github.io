@@ -1,0 +1,15 @@
+I"a<p>这是一些Python的重要操作</p>
+
+<!--more-->
+
+<p>数据表批处理操作：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+
+<span class="c1"># data is a dataFrame/ndarray
+</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1">#change all the 0 into 1
+# note: data==0 is a boolen array,which canbe used as index
+</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="c1">#这个知识点在于np支持批量运算+数组索引
+</span></code></pre></div></div>
+:ET

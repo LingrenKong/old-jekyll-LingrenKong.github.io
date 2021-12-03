@@ -1,0 +1,31 @@
+I"�	<p>每一门语言都有着自己的魔法，而Python也不例外，今天我们就来看看Python的这个符号吧——点的妙用。</p>
+
+<!--more-->
+
+<p>众所周知的是Python使用<code class="language-plaintext highlighter-rouge">.</code>来连接对象和方法（C++也是如此）</p>
+
+<p>如<code class="language-plaintext highlighter-rouge">myClass.function()</code></p>
+
+<p>然而……这个是什么情况呢？</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">turtle</span>
+<span class="n">myPen</span> <span class="o">=</span> <span class="n">turtle</span><span class="p">.</span><span class="n">Pen</span><span class="p">()</span><span class="c1">#打开画布
+</span><span class="n">myPen</span><span class="p">.</span><span class="n">circle</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="c1">#效果是笔画一个半径5px的圆
+</span></code></pre></div></div>
+
+<p>通过<code class="language-plaintext highlighter-rouge">import</code>声明的内容引入的是整个包</p>
+
+<p>第二行实际是<code class="language-plaintext highlighter-rouge">turtle.py</code>文件中的类<code class="language-plaintext highlighter-rouge">Pen</code>的初始化，第三行的<code class="language-plaintext highlighter-rouge">myPen</code>才是调用对象的某个方法。</p>
+
+<p>类似的问题更进一步就是一个关于包和类同名的糟糕情况</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="p">.</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">())</span>
+<span class="c1">#2019-06-27 15:01:09.853174
+</span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="k">print</span><span class="p">(</span><span class="n">datetime</span><span class="p">.</span><span class="n">now</span><span class="p">())</span>
+<span class="c1">#2019-06-27 15:01:09.854122第二次会晚一点，但是等效
+</span></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">datetime</code>包里面有个<code class="language-plaintext highlighter-rouge">datetime</code>类，于是就有了这个奇妙的情况</p>
+:ET

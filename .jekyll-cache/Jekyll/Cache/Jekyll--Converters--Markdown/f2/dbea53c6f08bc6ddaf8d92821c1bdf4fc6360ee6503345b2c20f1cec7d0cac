@@ -1,0 +1,60 @@
+I"�<p>【注：这是过去使用的github博客搭建方案，现在已经更换到jekyll】</p>
+
+<!--more-->
+
+<p>本篇涉及基本的HEXO配置，不涉及操作</p>
+
+<p>作者的配置环境：（命令行用 XXX -v可以快捷查看）</p>
+
+<ul>
+  <li>Node.js 10.16.0 (x64)</li>
+  <li>npm 6.9.0</li>
+  <li>hexo–见下方内容</li>
+  <li>git version 2.20.1.windows.1</li>
+  <li>markdown–使用typora作为编辑器</li>
+</ul>
+
+<h2 id="为什么这样做">为什么这样做</h2>
+
+<p>GitHubPages–免费博客平台</p>
+
+<p>HEXO–高端大气的主题设置</p>
+
+<p>没有广告！支持后续添加插件！</p>
+
+<h2 id="如何做">如何做</h2>
+
+<p>概括来讲步骤有以下几步</p>
+
+<ul>
+  <li>拥有一个GitHub账号$\rightarrow$这一步so easy</li>
+  <li>创建一个repository（简称repo）</li>
+  <li>安装HEXO</li>
+  <li>学习markdown</li>
+  <li>使用HEXO</li>
+</ul>
+
+<h3 id="创建仓库repository">创建仓库(repository)</h3>
+
+<p>创建方式和平时创建repo同样，公开库，命名格式为<code class="language-plaintext highlighter-rouge">Username.github.io</code>用自己账号的名字</p>
+
+<p><img src="https://klr-picgo.oss-cn-beijing.aliyuncs.com/img/setup-a-repo.png" alt="建立仓库" /></p>
+
+<p>注意，使用hexo不需要将你的新建repo下载到本地再同步，因为hexo是拥有将本地内容推送到GitHub等第三方网站的功能的。</p>
+
+<h3 id="安装hexo">安装HEXO</h3>
+
+<h4 id="ps为什么不用jekyll">P.S.为什么不用jekyll</h4>
+
+<p>jekyll是GitHub-pages使用的工作引擎，因此理论上使用jekyll是最佳方案，而且我也尝试了一下</p>
+
+<p>然而……jekyll使用Ruby作为语言，而Ruby本来是适用于Linux系统的，Windows安装的时候我的电脑出了一堆bug，于是只好放弃了。</p>
+
+<p class="info">不过如今回来看，其实是有Ruby的Windows安装套件的，安装问题不大</p>
+
+<p>与之相反，HEXO基于node.js，这个安装要友好很多</p>
+
+<h4 id="hexo安装nodejs">HEXO安装–node.js</h4>
+
+<p>node.js–<a href="https://nodejs.org/en/download/">官网</a>下载即可，有一个比较好的<a href="https://www.liaoxuefeng.com/wiki/1022910821149312/1023025597810528">介绍</a></p>
+:ET

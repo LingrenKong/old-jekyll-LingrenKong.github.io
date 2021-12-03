@@ -1,0 +1,92 @@
+I"�<p>【注：这是过去使用的github博客搭建方案，现在已经更换到jekyll】</p>
+
+<p>本篇涉及HEXO的基本指令以及如何配置一个主题（以NEXT为例）</p>
+
+<!--more-->
+
+<h1 id="hexo基本指令">HEXO基本指令</h1>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hexo server/s 运行服务器
+hexo generate/g 生成
+hexo g -d 生成并部署
+hexo deploy/d 部署到服务器
+</code></pre></div></div>
+
+<h1 id="主题配置">主题配置</h1>
+
+<p>本文采用的是NEXT主题，但是主题的基本配置是相同的</p>
+
+<p>最全配置可以看<a href="http://theme-next.iissnan.com/theme-settings.html">这个</a></p>
+
+<p>在配置之前先看一下目录（有两个文件被隐藏–<code class="language-plaintext highlighter-rouge">.deploy_git .gitignore</code>）：</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">dir
+</span>_config.yml  node_modules  package-lock.json  scaffolds  themes
+db.json      package.json  public             <span class="nb">source</span>
+</code></pre></div></div>
+
+<p>里面的<code class="language-plaintext highlighter-rouge">.json</code>文件是一些配置，初级操作用不到</p>
+
+<p><code class="language-plaintext highlighter-rouge">node_modules</code>文件夹是<code class="language-plaintext highlighter-rouge">node.js</code>的一些内容，初级操作也用不到</p>
+
+<p><code class="language-plaintext highlighter-rouge">public .deploy_git</code>文件夹是已经生成好的HTML，是用来预览/部署到服务器的</p>
+
+<p><code class="language-plaintext highlighter-rouge">source</code>是存放创建的markdown的文件夹，下面含有2+n个文件夹</p>
+
+<ul>
+  <li>_drafts：草稿箱</li>
+  <li>_posts：博客帖子</li>
+  <li>其他文件夹–通过<code class="language-plaintext highlighter-rouge">hexo new page "页面名"</code>来创建</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">scaffolds</code>是<code class="language-plaintext highlighter-rouge">hexo new</code>指令创建新md文件时候的模板所在位置，包含：</p>
+
+<ul>
+  <li>draft草稿：不会发布在正式博客的内容（但是可以<code class="language-plaintext highlighter-rouge">hexo s -d</code>本地查看草稿）</li>
+  <li>page页面：用于创建一些额外的页面，比如说tags标签页</li>
+  <li>post日志：最常用的，也是默认的类型，代表一篇博客</li>
+  <li><a href="https://lingrenkong.github.io/2019/11/09/blog-setup-2/#我的scaffolds配置">我的scaffolds配置</a></li>
+</ul>
+
+<h2 id="我的scaffolds配置">我的scaffolds配置</h2>
+
+<p>这个配置实际上是写一个md文件，之后指令生成的文件以它为基础（并且加上变量替换）</p>
+
+<p>三横里面的是yaml，外面的是HTML/markdown内容</p>
+
+<p>post：</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">title</span><span class="pi">:</span>  <span class="s">双括号代表变量替换，title是创建指令给出的名字</span>
+<span class="na">date</span><span class="pi">:</span>  <span class="s">date是系统自动的创建时间</span>
+<span class="na">mathjax</span><span class="pi">:</span> <span class="no">false</span><span class="s"> 配置数学公式渲染为false，如果需要再自己改成true</span>
+<span class="na">tags</span><span class="pi">:</span> <span class="s">标签，可以有多个，采用列表的形式</span>
+<span class="na">categories</span><span class="pi">:</span> <span class="s">分类具有顺序性和层次性</span>
+<span class="nn">---</span>
+
+<span class="s">&lt;!--more--&gt; 这个是hexo体系的助记符，在主页只显示到more之前</span>
+</code></pre></div></div>
+
+<p>draft：</p>
+
+<p>唯一区别是草稿没有创建日期（反正草稿发布是按照发布时间）</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">title</span><span class="pi">:</span> 
+<span class="na">mathjax</span><span class="pi">:</span> <span class="no">false</span>
+<span class="na">tags</span><span class="pi">:</span>
+<span class="na">categories</span><span class="pi">:</span>
+<span class="nn">---</span>
+
+<span class="s">&lt;!--more--&gt;</span>
+</code></pre></div></div>
+
+<p>page：</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">---</span>
+<span class="na">title</span><span class="pi">:</span> 
+<span class="na">date</span><span class="pi">:</span> 
+<span class="na">type</span><span class="pi">:</span> <span class="s2">"</span><span class="s">某个类别"</span> <span class="s">type不存在于默认的模板，添加type才会让page被识别为主题设定的东西</span>
+<span class="nn">---</span>
+</code></pre></div></div>
+:ET

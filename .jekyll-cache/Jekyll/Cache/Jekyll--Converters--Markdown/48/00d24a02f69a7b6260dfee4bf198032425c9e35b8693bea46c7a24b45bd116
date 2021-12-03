@@ -1,0 +1,66 @@
+I"�<p>列表是python的一大特色，让我们看看列表的有趣之处吧。</p>
+
+<!--more-->
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+
+<span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>列表加法返回的对象是两个列表合在一起</p>
+
+<p>Python中有一个非常有趣<del>（坑人）</del>的点，就是标识符的作用类似于C++的指针，多个标识符可以指向同一个对象。这点在<code class="language-plaintext highlighter-rouge">int float str frozeset bool tuple</code>中没有明显体现，因为那些是不可变类型，操作返回的都是新对象。</p>
+
+<p>然而在<code class="language-plaintext highlighter-rouge">list</code>中我们可以看到一个很明显的坑：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">raw</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="c1">#这时是[1,2]
+</span>
+<span class="n">new</span> <span class="o">=</span> <span class="n">raw</span> <span class="c1">#指向相同对象
+</span>
+<span class="n">new</span> <span class="o">+=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span> <span class="c1">#+=此时效果和new.extend([3,4])相同
+</span>
+<span class="nb">id</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span><span class="nb">id</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">12</span><span class="p">]:</span> <span class="p">(</span><span class="mi">2568562279688</span><span class="p">,</span> <span class="mi">2568562279688</span><span class="p">)</span> <span class="c1">#raw和new此时有着相同id,是同一个对象
+</span>
+<span class="n">new</span> <span class="o">=</span> <span class="n">new</span> <span class="o">+</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">]</span> <span class="c1">#右侧先返回新的对象，然后new指向新对象
+</span>
+<span class="n">raw</span><span class="p">,</span><span class="n">new</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">10</span><span class="p">]:</span> <span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">+=</code>在此时并不是一个简写，而是一个不同的操作，非常<em>贴心</em>的直接操作了原有对象。</p>
+
+<p>因此列表最好不要有<code class="language-plaintext highlighter-rouge">a = b</code>，建议使用<code class="language-plaintext highlighter-rouge">a = b.copy()</code>，如果有必要还需要<code class="language-plaintext highlighter-rouge">deepcopy</code></p>
+
+<p>用<code class="language-plaintext highlighter-rouge">for</code>循环操作列表等可迭代对象时，可以在迭代过程中逐个更改可变对象的值（但不可以通过赋值来达成）</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">]]</span>
+
+<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data</span> <span class="p">:</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="s">'!'</span> <span class="c1">#循环语句中的标识符val可以被赋值
+</span>    <span class="k">print</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    
+<span class="err">!</span>
+<span class="err">!</span>
+<span class="err">!</span>
+
+<span class="n">data</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">25</span><span class="p">]:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]]</span> <span class="c1">#但是赋值更改val不会更改data本身
+</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">],[</span><span class="mi">2</span><span class="p">],[</span><span class="mi">3</span><span class="p">]]</span>
+
+<span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data</span> <span class="p">:</span>
+    <span class="n">val</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">'~'</span><span class="p">)</span> <span class="c1">#循环语句中的标识符val可以通过自己的方法更改
+</span>    <span class="k">print</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s">'~'</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s">'~'</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s">'~'</span><span class="p">]</span>
+
+<span class="n">data</span>
+<span class="n">Out</span><span class="p">[</span><span class="mi">22</span><span class="p">]:</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="s">'~'</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="s">'~'</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="s">'~'</span><span class="p">]]</span>
+</code></pre></div></div>
+:ET
