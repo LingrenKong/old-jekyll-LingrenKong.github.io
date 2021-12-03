@@ -10,7 +10,13 @@ titles:
   zh      : *ZH_HANS
   zh-CN   : *ZH_HANS
   zh-SG   : *ZH_HANS
-key: page-about
+key: page-notes
 ---
 
 笔记页面
+
+
+
+[HDS](./HDS/)
+
+[other](./other/)

@@ -1,11 +1,11 @@
 ---
-title: CHAP2
+title: CHAP1-other
 tags: 
 - 数学
 - HDS
 ---
 
-HDS 第二章读书笔记
+HDS 第一章读书笔记
 
 <!--more-->
 

@@ -71,9 +71,9 @@ paths:
 ## => Collections
 
 collections:
-  HDS-wainright:    
+  notes:    
     output: true
-    permalink: /HDS-wainright/:path/
+    permalink: /notes/:path/
     
 ## => Post
 ##############################
@@ -211,7 +211,7 @@ exclude:
 defaults:
   - scope:
       path: ""
-      type: posts #对所有posts（_posts文件夹）设置这个默认
+      type: posts #对所有页面，不是之前的_posts设置这个默认
     values:
       layout: article 
       sharing: true
@@ -221,7 +221,6 @@ defaults:
       show_edit_on_github: true
       show_subscribe: true
       pageview: true
-
 
 ## => Plugins
 ##############################
