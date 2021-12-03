@@ -11,7 +11,7 @@ header:
       zh-CN   : *ZH_HANS
       zh-SG   : *ZH_HANS
       # @end locale config
-    url: /archive.html
+    url: /archive
 
   - titles:
       # @start locale config
@@ -25,7 +25,7 @@ header:
       zh-CN   : *ZH_HANS
       zh-SG   : *ZH_HANS
       # @end locale config
-    url: /about.html
+    url: /about
 
   - titles:
       en      : &EN       Notes
@@ -37,4 +37,4 @@ header:
       zh      : *ZH_HANS
       zh-CN   : *ZH_HANS
       zh-SG   : *ZH_HANS
-    url: /notes.html
+    url: /notes
