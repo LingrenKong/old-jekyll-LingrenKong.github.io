@@ -74,6 +74,7 @@ collections:
   HDS-wainright:    
     output: true
     permalink: /HDS-wainright/:path/
+    
 ## => Post
 ##############################
 ## excerpt
