@@ -1,5 +1,5 @@
 ---
-title: 远程链接笔记
+title: 远程桌面笔记
 tags: 
 - 技术
 ---
@@ -16,12 +16,20 @@ tags:
 
 # 安装软件
 
-软件从官方应用商店下载即可
+软件从官方应用商店下载即可，免费使用，如果是安卓端，需要从谷歌商店下载。
+
+没有谷歌商店的情况下可以考虑使用
 
 
 
 # 防火墙
 
-迈克菲需要开启防火墙的高级端口才可以，而且这个过程没有提示，导致连接失败都不知道为什么。
+迈克菲需要开启防火墙的高级端口才可以，其他的防火墙软件也类似，不过在Windows设置中勾选允许远程桌面就可以自动更改相应配置。
 
-参考：[官网](https://service.mcafee.com/?locale=zh-CN&articleId=TS100887&page=shell&shell=article-view)
+参考：[迈克菲官网](https://service.mcafee.com/?locale=zh-CN&articleId=TS100887&page=shell&shell=article-view)
+
+
+
+# 局域网
+
+最大问题其实是局域网的权限，经过试验发现校园网分网线、web、mobile三种，并不是真正的完全互通局域网。
