@@ -1,5 +1,6 @@
 ---
 title: docsify学习笔记
+modified_date: 2021-12-22
 tags: 
 - 技术
 - docsify
@@ -70,4 +71,24 @@ docsify serve docs 运行./docs目录的文件
 
 ## 路径
 
-`docsify`的路径支持功能不是那么好，如果是markdown路径链接，`./`这种表达式不会被解析，而且即便是在`<a></a>`块实现链接，我们也会发现，`./`对应的同级目录永远是根目录，和`/#/path`的模式不一样，因此似乎没办法弄成相对路径。
+`docsify`的路径支持功能不是那么友好，如果是markdown路径链接，`./`这种表达式不会被解析，而且即便是在`<a></a>`块实现链接，我们也会发现，`./`对应的同级目录永远是根目录，和`/#/path`的模式不一样，因此似乎没办法弄成相对路径。
+
+> 更新：实际上这个是高级选项，需要启动 [relativePath](https://docsify.js.org/#/configuration?id=relativepath) 功能
+
+
+
+# 扩展
+
+docsify一个重要特点在于，他的很多功能交给插件制作去实现（比如数学），因此除了官方文档，还需要自己找各种插件使用。
+
+## 基本注意事项
+
+扩展的放置位置要注意，不是随便放在HTML里面就行的。
+
+
+
+## 数学
+
+目前比较好的支持插件是[docsify-katex](https://upupming.site/docsify-katex/docs/#/)
+
+插入之后，默认语法的单双美元都是得到支持的。
