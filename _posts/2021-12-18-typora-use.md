@@ -46,7 +46,7 @@ beta版：在[历史版本](https://typora.io/releases/all)中下载
 
 Typora的数学公式加载功能基于`Mathjax`，正式版和`beta 0.11.x`是3，之前的版本是2
 
-
+数学公式的比较可以在[这个网页](https://www.intmath.com/cg5/katex-mathjax-comparison.php)观看实时测评
 
 ## 公式块
 
