@@ -9,10 +9,6 @@ tags:
 
 <!--more-->
 
-# 动机
-
-
-
 # 工具
 
 
@@ -51,7 +47,7 @@ github page支持的插件：https://pages.github.com/versions/
 
 ## 安装模式
 
-我选取的是主题安装，因此还需要手动从作者的模板页面获取部分文件。
+一开始我选取的是主题安装，因此还需要手动从作者的模板页面获取部分文件。实际上后来发现，在Github的部署必须要用静态主题文件，不支持在范围外的主题安装功能。
 
 需要额外活动的内容：
 
@@ -141,4 +137,12 @@ copy _template.md "%yyyy%-%mm%-%dd%-%title%.md"
 
 
 
-实现分类：https://smartadpole.github.io/tool/blog/2021/01/18/TeXt-theme-head.html
+# 分类实现
+
+实现分类的思路参考[这个博客](https://smartadpole.github.io/tool/blog/2021/01/18/TeXt-theme-head.html)
+
+同时利用jekyll的`collections`概念来处理。
+
+## 配置
+
+首先要在`config.yaml`中声明对应的

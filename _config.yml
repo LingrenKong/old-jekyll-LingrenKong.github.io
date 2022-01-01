@@ -70,9 +70,9 @@ paths:
 ## => Collections
 
 collections:
-  notes:    
+  category:    
     output: true
-    permalink: /notes/:path/
+    permalink: /category/:path/
     
 ## => Post
 ##############################
